@@ -37,7 +37,6 @@ def update_upstreams():
     if upstreamServer.value:
         data = json.loads(upstreamServer.value)
     data["status"] = action
-    data["weight"] = 1
     client.write(key, json.dumps(data))
 
     return redirect(url_for(".list_upstreams", key=os.path.split(key)[0]))
