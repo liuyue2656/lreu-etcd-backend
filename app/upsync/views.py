@@ -58,7 +58,11 @@ def change_weight():
     if active == "upper":
         data["weight"] = data.get("weight", 1) + 1
     elif active == "lower":
-        data["weight"] = data.get("weight", 1) - 1
+        if data.get("weight", 0) <= 1:
+            data["weight"] = 1
+        else:
+            data["weight"] = data.get("weight", 1) - 1
+
     client.write(upstream, json.dumps(data))
 
     return redirect(url_for(".list_upstreams", service=os.path.split(upstream)[0]))
@@ -113,9 +117,18 @@ def delete_server():
 
     if form.validate_on_submit():
         if server == ":".join((form.ip.data, str(form.port.data))):
-            print upstream, "delete"
             client.delete(upstream)
         else:
             flash("ip or port is not matched.")
+
+        parent = client.get(parent_path)
+        if parent.children.next() == parent:
+            print "delete parent"
+            try:
+                client.delete(parent_path, dir=True)
+            except:
+                pass
+            else:
+                return redirect(url_for(".display_upstream"))
         return redirect(url_for(".list_upstreams", service=parent_path))
     return render_template("delete_server.html", form=form, upstream=upstream)
