@@ -9,6 +9,21 @@
 {% block title %} Upstream 控制台 {% endblock %}
 
 {% block content %}
+    <div class="main">
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-danger">
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="alert"
+                >&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    <div>
+        <a type="button" class="btn btn-primary btn-xs" href="/add_service/?parent_path=/upstreams/">添加服务</a>
+    </div>
     <h1 class="text-center">Upstream 控制台</h1>
     <div>
         <table id="upsync" class="table table-striped">
@@ -19,12 +34,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for key in keys.children %}
+                {% for service in services.children %}
                     <tr>
-                        <td>{{ key.key.split("/")[-1] }}</td>
+                        <td>{{ service.key.split("/")[-1] }}</td>
                         <td>
                             <div class="btn-group">
-                                <a type="button" class="btn btn-primary btn-xs" href="/list/?key={{ key.key }}">修改</a>
+                                <a type="button" class="btn btn-primary btn-xs" href="/list/?service={{ service.key }}">修改</a>
                             </div>
                         </td>
                     </tr>

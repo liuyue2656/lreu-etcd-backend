@@ -8,35 +8,79 @@
 import os
 import json
 from . import upsync
-from flask import current_app, render_template, request, redirect, url_for
+from flask import current_app, render_template, request, redirect, url_for, flash
+from forms import addServer, addService
 
 
 @upsync.route("/")
 def display_upstream():
     client = current_app.config.get("CLIENT")
-    keys = client.get("/upstreams/")
-    return render_template("upstreams.html", keys=keys)
+    services = client.get("/upstreams/")
+    return render_template("upstreams.html", services=services)
 
 
 @upsync.route("/list/")
 def list_upstreams():
     client = current_app.config.get("CLIENT")
-    key = request.args.get("key")
-    keys = client.get(key)
-    return render_template("list_upstream.html", keys=keys, key=os.path.split(key))
+    service = request.args.get("service")
+    upstreams = client.get(service)
+    return render_template("list_upstream.html",
+                           upstreams=upstreams,
+                           service=os.path.split(service)[1])
 
 
-@upsync.route("/update/")
-def update_upstreams():
+@upsync.route("/change_status/")
+def change_status():
     client = current_app.config.get("CLIENT")
-    key = request.args.get("key")
-    action = request.args.get("action")
+    upstream = request.args.get("upstream")
+    status = request.args.get("status")
     data = {}
 
-    upstreamServer = client.get(key)
-    if upstreamServer.value:
-        data = json.loads(upstreamServer.value)
-    data["status"] = action
-    client.write(key, json.dumps(data))
+    server = client.get(upstream)
+    if server.value:
+        data = json.loads(server.value)
+    data["status"] = status
+    client.write(upstream, json.dumps(data))
 
-    return redirect(url_for(".list_upstreams", key=os.path.split(key)[0]))
+    return redirect(url_for(".list_upstreams", service=os.path.split(upstream)[0]))
+
+
+@upsync.route("/add_service/", methods=["get", "post"])
+def add_service():
+    client = current_app.config.get("CLIENT")
+    parent_path = request.args.get("parent_path")
+
+    form = addService()
+    if form.validate_on_submit():
+        print os.path.join(parent_path, form.service.data)
+        try:
+            client.get(os.path.join(parent_path, form.service.data))
+        except:
+            print "ok"
+        else:
+            flash("service is exists.", "error")
+        return redirect(url_for(".display_upstream"))
+
+    print parent_path
+    return render_template("add_service.html", form=form)
+
+
+@upsync.route("/add_server/", methods=["get", "post"])
+def add_server():
+    client = current_app.config.get("CLIENT")
+    parent_path = request.args.get("parent_path")
+
+    form = addServer()
+    if form.validate_on_submit():
+        print form.ip.data, form.port.data, form.status.data
+        server = ":".join((form.ip.data, str(form.port.data)))
+        try:
+            client.get(os.path.join(parent_path, server))
+        except:
+            print "ok"
+        else:
+            flash("server is exists.", "error")
+        return redirect(url_for(".display_upstream"))
+        return redirect(url_for(".list_upstreams", service=parent_path))
+    print parent_path
+    return render_template("add_server.html", form=form, parent_path=parent_path)

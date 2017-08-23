@@ -9,8 +9,11 @@
 {% block title %} Upstream 控制台 {% endblock %}
 
 {% block content %}
-    <h1 class="text-center">{{ key[1] }}</h1>
-    <a type="button" class="btn btn-primary btn-xs" href="/">上一页</a>
+    <div class="btn-group">
+        <a type="button" class="btn btn-primary btn-xs" href="/">上一页</a>
+        <a type="button" class="btn btn-primary btn-xs" href="/add_server/?parent_path=/upstreams/{{ service }}">添加节点</a>
+    </div>
+    <h1 class="text-center">{{ service }}</h1>
     <div>
         <table id="upstream" class="table table-striped">
             <thead>
@@ -21,15 +24,15 @@
                 </tr>
             </thead>
             <tbody>
-                {% for key in keys.children %}
+                {% for upstream in upstreams.children %}
                     <tr>
-                        <td>{{ key.key.split("/")[-1] }}</td>
-                        <td>{{ key.value }}</td>
+                        <td>{{ upstream.key.split("/")[-1] }}</td>
+                        <td>{{ upstream.value }}</td>
                         <td>
                             <div class="btn-group">
-                                <a type="button" class="btn btn-success btn-xs" href="/update/?key={{ key.key }}&action=up">active</a>
-                                <a type="button" class="btn btn-primary btn-xs" href="/update/?key={{ key.key }}&action=backup">backup</a>
-                                <a type="button" class="btn btn-warning btn-xs" href="/update/?key={{ key.key }}&action=down">down</a>
+                                <a type="button" class="btn btn-success btn-xs" href="/change_status/?upstream={{ upstream.key }}&status=up">active</a>
+                                <a type="button" class="btn btn-primary btn-xs" href="/change_status/?upstream={{ upstream.key }}&status=backup">backup</a>
+                                <a type="button" class="btn btn-warning btn-xs" href="/change_status/?upstream={{ upstream.key }}&status=down">down</a>
                             </div>
                         </td>
                     </tr>
