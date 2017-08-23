@@ -20,7 +20,8 @@
                 <tr>
                     <th>项目</th>
                     <th>值</th>
-                    <th>操作</th>
+                    <th>状态操作</th>
+                    <th>权重操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,9 +31,15 @@
                         <td>{{ upstream.value }}</td>
                         <td>
                             <div class="btn-group">
-                                <a type="button" class="btn btn-success btn-xs" href="/change_status/?upstream={{ upstream.key }}&status=up">active</a>
+                                <a type="button" class="btn btn-success btn-xs" href="/change_status/?upstream={{ upstream.key }}&status=up">up</a>
                                 <a type="button" class="btn btn-primary btn-xs" href="/change_status/?upstream={{ upstream.key }}&status=backup">backup</a>
                                 <a type="button" class="btn btn-warning btn-xs" href="/change_status/?upstream={{ upstream.key }}&status=down">down</a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a type="button" class="btn btn-success btn-xs" href="/change_weight/?upstream={{ upstream.key }}&active=upper">upper</a>
+                                <a type="button" class="btn btn-primary btn-xs" href="/change_weight/?upstream={{ upstream.key }}&active=lower">lower</a>
                             </div>
                         </td>
                     </tr>

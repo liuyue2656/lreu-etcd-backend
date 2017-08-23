@@ -45,6 +45,25 @@ def change_status():
     return redirect(url_for(".list_upstreams", service=os.path.split(upstream)[0]))
 
 
+@upsync.route("/change_weight/")
+def change_weight():
+    client = current_app.config.get("CLIENT")
+    upstream = request.args.get("upstream")
+    active = request.args.get("active")
+    data = {}
+
+    server = client.get(upstream)
+    if server.value:
+        data = json.loads(server.value)
+    if active == "upper":
+        data["weight"] = data.get("weight", 1) + 1
+    elif active == "lower":
+        data["weight"] = data.get("weight", 1) - 1
+    client.write(upstream, json.dumps(data))
+
+    return redirect(url_for(".list_upstreams", service=os.path.split(upstream)[0]))
+
+
 @upsync.route("/add_service/", methods=["get", "post"])
 def add_service():
     client = current_app.config.get("CLIENT")
@@ -52,16 +71,15 @@ def add_service():
 
     form = addService()
     if form.validate_on_submit():
-        print os.path.join(parent_path, form.service.data)
+        service = os.path.join(parent_path, form.service.data)
         try:
-            client.get(os.path.join(parent_path, form.service.data))
+            client.get(service)
         except:
-            print "ok"
+            return redirect(url_for(".add_server", parent_path=service))
         else:
             flash("service is exists.", "error")
         return redirect(url_for(".display_upstream"))
 
-    print parent_path
     return render_template("add_service.html", form=form)
 
 
@@ -72,15 +90,15 @@ def add_server():
 
     form = addServer()
     if form.validate_on_submit():
-        print form.ip.data, form.port.data, form.status.data
         server = ":".join((form.ip.data, str(form.port.data)))
+        server_path = os.path.join(parent_path, server)
+        data = {"status": form.status.data}
         try:
-            client.get(os.path.join(parent_path, server))
+            client.get(server_path)
         except:
-            print "ok"
+            client.write(server_path, json.dumps(data))
         else:
             flash("server is exists.", "error")
-        return redirect(url_for(".display_upstream"))
+            return redirect(url_for(".display_upstream"))
         return redirect(url_for(".list_upstreams", service=parent_path))
-    print parent_path
     return render_template("add_server.html", form=form, parent_path=parent_path)

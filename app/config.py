@@ -18,5 +18,5 @@ class DevConfig():
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     # CLIENT = "asdf"
-    CLIENT = etcd.Client(host="10.37.253.72", port=2379)
+    CLIENT = etcd.Client(host="10.37.253.72", port=2479)
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(minutes=10)
