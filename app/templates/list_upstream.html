@@ -3,12 +3,30 @@
 {% block styles %}
     <link href="{{url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet" >
     <link href="{{url_for('static', filename='images/favicon.ico')}}" rel="icon" >
-    <link href="{{url_for('static', filename="css/jquery.dataTables.min.css")}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/sweetalert.css')}}" rel="stylesheet" >
+    <link href="{{url_for('static', filename='css/jquery.dataTables.min.css')}}" rel="stylesheet">
 {% endblock %}
 
 {% block title %} Upstream 控制台 {% endblock %}
 
 {% block content %}
+    <div class="main">
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-danger">
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="alert"
+                >&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
     <div class="btn-group">
         <a type="button" class="btn btn-primary btn-xs" href="/">上一页</a>
         <a type="button" class="btn btn-primary btn-xs" href="/add_server/?parent_path=/upstreams/{{ service }}">添加节点</a>
@@ -22,6 +40,7 @@
                     <th>值</th>
                     <th>状态操作</th>
                     <th>权重操作</th>
+                    <th>删除节点</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,6 +61,12 @@
                                 <a type="button" class="btn btn-primary btn-xs" href="/change_weight/?upstream={{ upstream.key }}&active=lower">lower</a>
                             </div>
                         </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-danger btn-xs" id="delete" data_url="/delete_server/?upstream={{ upstream.key }}">Delete</button>
+                                {# <a type="button" class="btn btn-danger btn-xs" id="" href="/delete_server/?upstream={{ upstream.key }}">Delete</a> #}
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -54,6 +79,7 @@
     <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
     <script charset="utf8" src="{{url_for('static',filename='js/jquery.dataTables.min.js')}}"></script>
     <script charset="utf8" src="{{url_for('static',filename='js/dataTables.bootstrap.min.js')}}"></script>
+    <script src="{{url_for('static', filename='js/sweetalert.min.js')}}"></script>
     <script>
         jQuery(function($) {
             $('#upstream').DataTable();
@@ -73,6 +99,26 @@
                 "sSearch": "快速过滤: ",
                 "sLengthMenu": "每页_MENU_记录"
             }
+        });
+    </script>
+    <script>
+        $(document).on("click","#delete",function() {
+            console.log("asdf");
+            $.ajax({
+                url: this.getAttribute("data_url"),
+                type: "get",
+                success: function(res) {
+                    $("#myModal .modal-content").html(res);
+                    $("#myModal").modal("toggle")
+                },
+                error: function(res) {
+                    if (res.status == 403) {
+                        swal("权限不足", "没有操作权限", "error")
+                    } else {
+                        swal("Error", "Something Error, Please contact Admin.", "error")
+                    }
+                }
+            });
         });
     </script>
 {% endblock %}

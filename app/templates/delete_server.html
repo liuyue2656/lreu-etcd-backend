@@ -1,0 +1,26 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">
+        <span aria-hidden="true">&times;</span>
+        <span class="sr-only">Close</span>
+    </button>
+    <div>
+        <span class="modal-title" id="myModalLabel"><font size=6>删除节点</font></span>
+        <span><font color="#C0C0C0">输入要删除节点的IP和端口进行删除</font></span>
+    </div>
+</div>
+<form method="post" action="/delete_server/?upstream={{ upstream }}" target="_top">
+    <div class="modal-body">
+        {{ form.hidden_tag() }}
+        {% for field in form %}
+            {% if not bootstrap_is_hidden_field(field) and field.name != "submit"-%}
+                {{ wtf.form_field(field, form_type=field.type)}}
+            {%- endif %}
+        {% endfor %}
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>

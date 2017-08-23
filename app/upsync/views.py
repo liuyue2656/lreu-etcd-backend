@@ -9,7 +9,7 @@ import os
 import json
 from . import upsync
 from flask import current_app, render_template, request, redirect, url_for, flash
-from forms import addServer, addService
+from forms import addServer, addService, deleteServer
 
 
 @upsync.route("/")
@@ -77,7 +77,7 @@ def add_service():
         except:
             return redirect(url_for(".add_server", parent_path=service))
         else:
-            flash("service is exists.", "error")
+            flash("service is exists.")
         return redirect(url_for(".display_upstream"))
 
     return render_template("add_service.html", form=form)
@@ -98,7 +98,24 @@ def add_server():
         except:
             client.write(server_path, json.dumps(data))
         else:
-            flash("server is exists.", "error")
+            flash("server is exists.")
             return redirect(url_for(".display_upstream"))
         return redirect(url_for(".list_upstreams", service=parent_path))
     return render_template("add_server.html", form=form, parent_path=parent_path)
+
+
+@upsync.route("/delete_server/", methods=["get", "post"])
+def delete_server():
+    client = current_app.config.get("CLIENT")
+    upstream = request.args.get("upstream")
+    parent_path, server = os.path.split(upstream)
+    form = deleteServer()
+
+    if form.validate_on_submit():
+        if server == ":".join((form.ip.data, str(form.port.data))):
+            print upstream, "delete"
+            client.delete(upstream)
+        else:
+            flash("ip or port is not matched.")
+        return redirect(url_for(".list_upstreams", service=parent_path))
+    return render_template("delete_server.html", form=form, upstream=upstream)
