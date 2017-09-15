@@ -16,7 +16,13 @@ from forms import addServer, addService, deleteServer
 def display_upstream():
     client = current_app.config.get("CLIENT")
     services = client.get("/upstreams/")
-    return render_template("upstreams.html", services=services)
+    service_list = {}
+    for service in services.children:
+        service = client.get(service.key)
+        service_list[service.key] = []
+        for service_child in service.children:
+            service_list[service.key].append(service_child.key.split("/")[-1])
+    return render_template("upstreams.html", service_list=service_list)
 
 
 @upsync.route("/list/")

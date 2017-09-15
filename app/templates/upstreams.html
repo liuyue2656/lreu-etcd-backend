@@ -30,16 +30,18 @@
             <thead>
                 <tr>
                     <th>项目</th>
+                    <th>主机</th>
                     <th>操作</th>
                 </tr>
             </thead>
             <tbody>
-                {% for service in services.children %}
+                {% for service, server in service_list.iteritems() %}
                     <tr>
-                        <td>{{ service.key.split("/")[-1] }}</td>
+                        <td>{{ service.split("/")[-1] }}</td>
+                        <td>{{ server }}</td>
                         <td>
                             <div class="btn-group">
-                                <a type="button" class="btn btn-primary btn-xs" href="/list/?service={{ service.key }}">修改</a>
+                                <a type="button" class="btn btn-primary btn-xs" href="/list/?service={{ service }}">修改</a>
                             </div>
                         </td>
                     </tr>
